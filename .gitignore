@@ -1,0 +1,5 @@
+UPLOADING
+build
+dist
+*.egg-info
+*.swp
