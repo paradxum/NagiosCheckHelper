@@ -77,17 +77,32 @@ nerr = NagErrors()
 neval = NagEval(nerr)
 ```
 
-#### Evaluate Enumerated Values
+#### Evaluate value against Enumerated Values
 Evaluate a value based on lists of enumerated values
 ```
-evalEnum(self, value, defaultStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= "")
+evalEnum(value, defaultStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= "")
+```
+
+#### Evaluate List of values against Enumerated Values
+Evaluate a list of values based on lists of enumerated values
+```
+values = ['value1', 'value2', 'value3']
+evalListEnum(values, emptyStatus="UNKNOWN", unknownValueStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= "")
 ```
 
 #### Evaluate Numbers
 There are 2 evaluators that will handle number ranges (asending and decending):
 ```
-evalNumberAsc(self, value, warningAbove=None, criticalAbove=None, prefixText="", postfixText="", numberUnits="")
-evalNumberDesc(self, value, warningBelow=None, criticalBelow=None, prefixText="", postfixText= "", numberUnits="")
+evalNumberAsc(value, warningAbove=None, criticalAbove=None, prefixText="", postfixText="", numberUnits="")
+evalNumberDesc(value, warningBelow=None, criticalBelow=None, prefixText="", postfixText= "", numberUnits="")
+```
+
+#### Evaluate List of Numbers
+There are 2 evaluators that will handle lists of numbers based on number ranges (asending and decending):
+```
+values = [5, 90, 55, 200001]
+evalListNumberAsc(values, emptyStatus="UNKNOWN", warningAbove=None, criticalAbove=None, prefixText="", postfixText="", numberUnits="")
+evalListNumberDesc(values, emptyStatus="UNKNOWN", warningBelow=None, criticalBelow=None, prefixText="", postfixText= "", numberUnits="")
 ```
 
 

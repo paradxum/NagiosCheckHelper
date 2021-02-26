@@ -139,7 +139,8 @@ class NagEval(object):
     def __init__(self, errObj):
         self.errObj = errObj
 
-    def evalEnumList(self, values, emptyStatus="UNKNOWN", unknownValueStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= ""):
+
+    def evalListEnum(self, values, emptyStatus="UNKNOWN", unknownValueStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= ""):
         '''
         Evaluate a list of values based on lists of enumerated values
 
@@ -160,11 +161,11 @@ class NagEval(object):
         Returns:
             str: Result of test, One of (OK,WARNING,CRITICAL,UNKNOWN)
         '''
-        if len(values) == 0 or (type(values) == str and values == ""):
+        if (type(values) == list and len(values) == 0) or (type(values) != list and values == ""):
             if emptyStatus != "OK":
                 self.errObj.addRecord(emptyStatus.lower(),"{}list is Empty{}".format(prefixText, postfixText))
             return(emptyStatus)
-        if type(values) == str:
+        if type(values) != list:
             return self.evalEnum(values, unknownValueStatus, okValues, warningValues, criticalValues, unknownValues, prefixText, postfixText)
 
         ret = "OK"
@@ -174,6 +175,7 @@ class NagEval(object):
             if rvals[r] > rvals[ret]:
                 ret = r
         return ret
+
 
     def evalEnum(self, value, defaultStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= ""):
         '''
@@ -209,6 +211,42 @@ class NagEval(object):
         if defaultStatus != "OK":
             self.errObj.addRecord(defaultStatus.lower(), "{}value {} not found{}".format(prefixText, value, postfixText))
         return(defaultStatus)
+    
+
+    def evalListNumberAsc(self, values, emptyStatus="UNKNOWN", warningAbove=None, criticalAbove=None, prefixText="", postfixText="", numberUnits=""):
+        '''
+        Evaluate a list of values based on ascending thresholds
+
+        Args:
+            values (List of num): Values to test
+            emptyStatus (str): Result if values is an empty list
+            warningAbove (num): Generate a warning if value is above this threshold
+            criticalAbove (num): Generate a critical error if value is above this threshold
+            prefixText (str): String to prefix error reports
+            postfixText (str): String to append to error reports
+            numberUnits (str): Units to append to numbers in error reports
+
+        Effects:
+            self.errObj (NagErrors): Updated with error strings
+
+        Returns:
+            str: Result of test, One of (OK,WARNING,CRITICAL,UNKNOWN)
+        '''
+        if (type(values) == list and len(values) == 0) or (type(values) != list and values == ""):
+            if emptyStatus != "OK":
+                self.errObj.addRecord(emptyStatus.lower(),"{}list is Empty{}".format(prefixText, postfixText))
+            return(emptyStatus)
+        if type(values) != list:
+            return self.evalNumberAsc(values, warningAbove, criticalAbove, prefixText, postfixText, numberUnits)
+
+        ret = "OK"
+        rvals = {"OK": 0, "WARNING": 1, "CRITICAL": 2, "UNKNOWN": 3}
+        for value in values:
+            r = self.evalNumberAsc(value, warningAbove, criticalAbove, prefixText, postfixText, numberUnits)
+            if rvals[r] > rvals[ret]:
+                ret = r
+        return ret
+
 
     def evalNumberAsc(self, value, warningAbove=None, criticalAbove=None, prefixText="", postfixText="", numberUnits=""):
         '''
@@ -235,6 +273,41 @@ class NagEval(object):
             self.errObj.addWarning("{}{}{} is > {}{}{}".format(prefixText, value, numberUnits, warningAbove, numberUnits, postfixText))
             return("WARNING")
         return("OK")
+    
+
+    def evalListNumberDesc(self, values, emptyStatus="UNKNOWN", warningBelow=None, criticalBelow=None, prefixText="", postfixText="", numberUnits=""):
+        '''
+        Evaluate a list of values based on descending thresholds
+
+        Args:
+            values (List of num): Values to test
+            emptyStatus (str): Result if values is an empty list
+            warningBelow (num): Generate a warning if value is below this threshold
+            criticalBelow (num): Generate a critical error if value is below this threshold
+            prefixText (str): String to prefix error reports
+            postfixText (str): String to append to error reports
+            numberUnits (str): Units to append to numbers in error reports
+
+        Effects:
+            self.errObj (NagErrors): Updated with error strings
+
+        Returns:
+            str: Result of test, One of (OK,WARNING,CRITICAL,UNKNOWN)
+        '''
+        if (type(values) == list and len(values) == 0) or (type(values) != list and values == ""):
+            if emptyStatus != "OK":
+                self.errObj.addRecord(emptyStatus.lower(),"{}list is Empty{}".format(prefixText, postfixText))
+            return(emptyStatus)
+        if type(values) != list:
+            return self.evalNumberDesc(values, warningBelow, criticalBelow, prefixText, postfixText, numberUnits)
+
+        ret = "OK"
+        rvals = {"OK": 0, "WARNING": 1, "CRITICAL": 2, "UNKNOWN": 3}
+        for value in values:
+            r = self.evalNumberDesc(value, warningBelow, criticalBelow, prefixText, postfixText, numberUnits)
+            if rvals[r] > rvals[ret]:
+                ret = r
+        return ret
     
     def evalNumberDesc(self, value, warningBelow=None, criticalBelow=None, prefixText="", postfixText= "", numberUnits=""):
         '''
