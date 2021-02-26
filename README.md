@@ -1,6 +1,12 @@
 # NagiosCheckHelper
 
-This library helps with the boilerplate nagios check formating/status information when writing a Python check
+This library helps with the boilerplate nagios check formating, status information, and basic evaluations when writing a Python nagios/icinga check
+
+## Installation
+It's on pypi, so it's as easy as installing via pip
+```
+pip3 install NagiosCheckHelper
+```
 
 ## NagErrors Object
 
@@ -12,9 +18,43 @@ Then call obj.printStatus() to print the formatted Errors
 
 Then call obj.doExit() to exit your program with the proper result code.
 
-2cent example:
+### Usage
+#### Object Creation
+No parameters, so just do a:
 ```
-import NagErrors from NagiosCheckHelper
+from NagiosCheckHelper import NagErrors
+nerr = NagErrors()
+```
+
+#### Logging Errors
+There are 4 functions for logging errors:
+- addRecord(eType,etext)
+- addCritical(etext)
+- addWarning(etext)
+- addUnknown(etext)
+
+- eType would be the type of error. One of: critical, warning, or unknown\
+- etext is the Error message (without any Error or Warning prefix, that's automatically added)
+
+example:
+```
+from NagiosCheckHelper import NagErrors
+nerr = NagErrors()
+nerr.addRecord("critical", "The printer is on fire.")
+nerr.addWarning("The printer is out of paper.")
+nerr.addUnknown("The printer grew legs and walked out the door.")
+```
+
+#### Outputting status
+There are 2 main functions for outputting status:
+- printStatus() - print out the formatted status lines
+- doExit() - Exit the program with the proper status code.
+
+
+### NagErrors "full" example:
+A quick example that sets a couple messages and exits
+```
+from NagiosCheckHelper import NagErrors
 nerr = NagErrors()
 nerr.addCritical("This is a Critical Event")
 nerr.addWarning("This is a Warning Event")
@@ -28,22 +68,42 @@ An object with common subroutines to evaluate data and cause error events based 
 
 Be sure to initite it with an NagErrors Object.
 
-### evalEnum
-Evaluate a value and see if it matches with an array of values
-
+### Usage
+#### Object Creation
+Takes a NagErrors object to track errors, so just do a:
 ```
-obj.evalEnum("ALL OK", defaultStatus="CRITICAL", okValues=["ALL OK"], unknownValues=["Don't Know"])
-```
-
-### evalNumberAsc
-Evaluate a number and see if it is above a certain value
-```
-obj.evalNumberAsc(50, warningAbove=80, criticalAbove=95, numberUnits=" degrees F")
+from NagiosCheckHelper import NagErrors, NagEval
+nerr = NagErrors()
+neval = NagEval(nerr)
 ```
 
-### evalNumberDesc
-Evaluate a number and see if it is below a certain value
+#### Evaluate Enumerated Values
+Evaluate a value based on lists of enumerated values
 ```
-obj.evalNumberDesc(50, warningBelow=32, criticalBelow=10, numberUnits=" degrees F")
+evalEnum(self, value, defaultStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= "")
 ```
+
+#### Evaluate Numbers
+There are 2 evaluators that will handle number ranges (asending and decending):
+```
+evalNumberAsc(self, value, warningAbove=None, criticalAbove=None, prefixText="", postfixText="", numberUnits="")
+evalNumberDesc(self, value, warningBelow=None, criticalBelow=None, prefixText="", postfixText= "", numberUnits="")
+```
+
+
+### NagEval "full" example:
+A quick example that tests a value, outputs the results and exits with the proper code
+```
+from NagiosCheckHelper import NagErrors, NagEval
+nerr = NagErrors()
+neval = NagEval(nerr)
+neval.evalNumberAsc(95, warningAbove=80, criticalAbove=90, numberUnits="%")
+nerr.printStatus()
+nerr.doExit()
+```
+
+## Full Examples
+These are full examples/checks that use this library and click to handle most of the boilerplate and script is mostly just defining the options and running the actual check.
+- [check_puppet_agent](https://github.com/paradxum/check_puppet_agent)
+- [check_truenas](https://github.com/paradxum/check_truenas)
 
