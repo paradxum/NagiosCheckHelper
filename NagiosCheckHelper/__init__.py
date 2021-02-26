@@ -139,6 +139,42 @@ class NagEval(object):
     def __init__(self, errObj):
         self.errObj = errObj
 
+    def evalEnumList(self, values, emptyStatus="UNKNOWN", unknownValueStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= ""):
+        '''
+        Evaluate a list of values based on lists of enumerated values
+
+        Args:
+            values (List of str/num): Values to test
+            emptyStatus (str): Result if values is an empty list
+            unknownValueStatus (str): Status to assign to values that are not in any lists (OK, WARNING, CRITICAL, or UNKNOWN)
+            okValues (List of str/num): Values to match for OK Status
+            warningValues (List of str/num): Values to match for Warning Status
+            criticalValues (List of str/num): Values to match for Critical Status
+            unknownValues (List of str/num): Values to match for Unknown Status
+            prefixText (str): String to prefix error reports
+            postfixText (str): String to append to error reports
+
+        Effects:
+            self.errObj (NagErrors): Updated with error strings
+
+        Returns:
+            str: Result of test, One of (OK,WARNING,CRITICAL,UNKNOWN)
+        '''
+        if len(values) == 0 or (type(values) == str and values == ""):
+            if emptyStatus != "OK":
+                self.errObj.addRecord(emptyStatus.lower(),"{}list is Empty{}".format(prefixText, postfixText))
+            return(emptyStatus)
+        if type(values) == str:
+            return self.evalEnum(values, unknownValueStatus, okValues, warningValues, criticalValues, unknownValues, prefixText, postfixText)
+
+        ret = "OK"
+        rvals = {"OK": 0, "WARNING": 1, "CRITICAL": 2, "UNKNOWN": 3}
+        for value in values:
+            r = self.evalEnum(value, unknownValueStatus, okValues, warningValues, criticalValues, unknownValues, prefixText, postfixText)
+            if rvals[r] > rvals[ret]:
+                ret = r
+        return ret
+
     def evalEnum(self, value, defaultStatus="UNKNOWN", okValues=[], warningValues=[], criticalValues=[], unknownValues=[], prefixText="", postfixText= ""):
         '''
         Evaluate a value based on lists of enumerated values
