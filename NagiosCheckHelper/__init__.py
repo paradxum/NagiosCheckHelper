@@ -91,7 +91,7 @@ class NagEval(object):
         if criticalBelow is not None and value < criticalBelow:
             self.errObj.addCritical("{}{}{} is < {}{}{}".format(prefixText, value, numberUnits, criticalBelow, numberUnits, postfixText))
             return("CRITICAL")
-        if warningBelow is not None and value > warningBelow:
+        if warningBelow is not None and value < warningBelow:
             self.errObj.addWarning("{}{}{} is < {}{}{}".format(prefixText, value, numberUnits, warningBelow, numberUnits, postfixText))
             return("WARNING")
         return("OK")
